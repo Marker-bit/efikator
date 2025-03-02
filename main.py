@@ -3,7 +3,6 @@ from models import SimpleNN  # noqa
 import torch
 import argparse
 import re
-from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument("input", type=str, help="input file")
@@ -28,15 +27,15 @@ for word in re.finditer(r"[а-яё]+", text, re.IGNORECASE):
         encoded_new = encode_context(c[0], alphabet)
         encoded_new = torch.tensor(encoded_new, dtype=torch.float32).view(1, -1)
         prediction = model(encoded_new)
-        tqdm.write(
+        print(
             f"Probability of replacing 'е' with 'ё' in '{word}' on index {c[1]}: {prediction.item():.4f}"
         )
         if prediction.item() > 0.5:
-            tqdm.write(f"Replacing 'е' with 'ё' in '{word}' on index {c[1]}")
+            print(f"Replacing 'е' with 'ё' in '{word}' on index {c[1]}")
             up = word[c[1]].upper() == word[c[1]]
             new_text[s + c[1]] = "Ё" if up else "ё"
             new_w = word[: c[1]] + "Ё" if up else "ё" + word[c[1] + 1 :]
-            tqdm.write(f"New word: {new_w}")
+            print(f"New word: {new_w}")
 
 with open(args.output, "w", encoding="utf-8") as f:
     f.write("".join(new_text))
